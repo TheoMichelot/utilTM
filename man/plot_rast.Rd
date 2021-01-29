@@ -4,10 +4,15 @@
 \alias{plot_rast}
 \title{Plot raster}
 \usage{
-plot_rast(rast)
+plot_rast(rast, contour = FALSE, guide = "colourbar")
 }
 \arguments{
 \item{rast}{Raster object}
+
+\item{contour}{Logical. If TRUE, contour lines are added. (Default: FALSE)}
+
+\item{guide}{Argument passed to scale_fill. Defaults to "colourbar" for
+continuous colour scale, and can be set to "none" to remove the scale.}
 }
 \value{
 A ggplot object

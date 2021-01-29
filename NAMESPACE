@@ -2,6 +2,7 @@
 
 export(plot_rast)
 export(rast2df)
+export(sim_OU)
 importFrom(ggplot2,aes)
 importFrom(ggplot2,coord_equal)
 importFrom(ggplot2,geom_contour)
