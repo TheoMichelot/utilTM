@@ -5,6 +5,6 @@ Version: 0.1.0
 Author: Theo Michelot
 Maintainer: Theo Michelot <tm75@st-andrews.ac.uk>
 Description: Brings together miscellaneous functions I have written
-License: GPL-3
+License: GPL-3 
 Encoding: UTF-8
 LazyData: true
