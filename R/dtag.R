@@ -101,7 +101,7 @@ prep_dtag <- function(file, start_time, out_freq, keep_interval = NULL) {
 #'
 #' @return Same data frame as prep_dtag
 #'
-#' @importFrom pcmcapply pbmclapply
+#' @importFrom pbmcapply pbmclapply
 #' @export
 prep_dtags <- function(files, start_times, out_freq, keep_intervals = NULL,
                        n_cores = 1) {
