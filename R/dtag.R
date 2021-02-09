@@ -132,21 +132,30 @@ prep_dtags <- function(files, start_times, out_freq, keep_intervals = NULL,
 #'
 #' @importFrom lubridate interval %within%
 #' @export
-expo_data <- function(data, expo) {
+add_expo <- function(data, expo) {
+    # Create output data frame
     out <- data
+
+    # Make sure the data formats are okay
+    expo$tagID <- as.character(expo$tagID)
+    expo$start <- ymd_hms(expo$start)
+    expo$end <- ymd_hms(expo$end)
+    data$tagID <- as.character(data$tagID)
+    data$ID <- as.character(data$ID)
+    data$time <- ymd_hms(data$time)
 
     # Add 'expo' column ('before', 'during' or 'after')
     out$expo <- "before"
     for(i in seq_along(unique(data$tagID))) {
-        # This tag ID
-        ID <- unique(data$tagID)[i]
-        ind_thisID <- which(data$tagID == ID)
+        # This tag ID (as string rather than factor)
+        thisID <- as.character(unique(data$tagID)[i])
+        ind_thisID <- which(data$tagID == thisID)
 
         # Exposure information for this tag ID
-        expo_thisID <- subset(expo, tagID == ID)
+        expo_thisID <- subset(expo, tagID == thisID)
 
         # Loop over exposure events for this tag ID
-        for(k in which(expo$tagID == ID)) {
+        for(k in which(expo$tagID == thisID)) {
             # Start and end of exposure
             start <- expo$start[k]
             end <- expo$end[k]
