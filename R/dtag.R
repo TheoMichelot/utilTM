@@ -18,6 +18,7 @@
 #' @importFrom R.matlab readMat
 #' @importFrom tagtools find_dives
 #' @importFrom lubridate ymd_hms %within%
+#' @export
 prep_dtag <- function(file, start_time, out_freq, keep_interval = NULL) {
     # Read file
     dtag <- readMat(file)
@@ -101,6 +102,7 @@ prep_dtag <- function(file, start_time, out_freq, keep_interval = NULL) {
 #' @return Same data frame as prep_dtag
 #'
 #' @importFrom pcmcapply pbmclapply
+#' @export
 prep_dtags <- function(files, start_times, out_freq, keep_intervals = NULL,
                        n_cores = 1) {
     # Call prep_dtag on each data file (in parallel if possible)
@@ -129,6 +131,7 @@ prep_dtags <- function(files, start_times, out_freq, keep_intervals = NULL,
 #' }
 #'
 #' @importFrom lubridate interval %within%
+#' @export
 expo_data <- function(data, expo) {
     out <- data
 
