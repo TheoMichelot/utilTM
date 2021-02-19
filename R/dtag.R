@@ -10,9 +10,13 @@
 #'
 #' @return Data frame with columns:
 #' \itemize{
-#' \item{}{}
-#' \item{}{}
-#' \item{}{}
+#' \item{tagID}{Identifier for tag (i.e., time series)}
+#' \item{Ax, Ay, Az}{Acceleration in x, y, and z, obtained directly from the tag data}
+#' \item{pitch, roll, head}{Eulerian angles}
+#' \item{depth}{Depth in metres}
+#' \item{time}{Time as POSIX}
+#' \item{time_num}{Time as numeric}
+#' \item{type}{Dive type (either "shallow" or "deep")}
 #' }
 #'
 #' @importFrom R.matlab readMat
@@ -145,7 +149,9 @@ add_expo <- function(data, expo) {
     data$time <- ymd_hms(data$time)
 
     # Add 'expo' column ('before', 'during' or 'after')
+    # and 'after_expo' ('no' or name of exposure event)
     out$expo <- "before"
+    out$after_expo <- "no"
     for(i in seq_along(unique(data$tagID))) {
         # This tag ID (as string rather than factor)
         thisID <- as.character(unique(data$tagID)[i])
@@ -165,6 +171,7 @@ add_expo <- function(data, expo) {
             # Indices after exposure
             ind_after <- ind_thisID[which(out$time[ind_thisID] > end)]
             out$expo[ind_after] <- "after"
+            out$after_expo[ind_after] <- paste0("expo_", thisID, "_", k)
         }
     }
 
