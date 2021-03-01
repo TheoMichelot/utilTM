@@ -65,6 +65,7 @@ prep_dtag <- function(file, start_time, out_freq, keep_interval = NULL) {
                            pitch = pitch,
                            roll = roll,
                            head = head,
+                           dhead = c(dhead, NA),
                            depth = depth,
                            time = time,
                            time_num = time_num,
@@ -171,7 +172,7 @@ add_expo <- function(data, expo) {
             # Indices after exposure
             ind_after <- ind_thisID[which(out$time[ind_thisID] > end)]
             out$expo[ind_after] <- "after"
-            out$after_expo[ind_after] <- paste0("expo_", thisID, "_", k)
+            out$after_expo[c(ind_expo, ind_after)] <- paste0("expo_", thisID, "_", k)
         }
     }
 
