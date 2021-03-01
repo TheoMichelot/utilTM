@@ -20,9 +20,13 @@ on the animal). If not specified, the whole data set is kept.}
 \value{
 Data frame with columns:
 \itemize{
-\item{}{}
-\item{}{}
-\item{}{}
+\item{tagID}{Identifier for tag (i.e., time series)}
+\item{Ax, Ay, Az}{Acceleration in x, y, and z, obtained directly from the tag data}
+\item{pitch, roll, head}{Eulerian angles}
+\item{depth}{Depth in metres}
+\item{time}{Time as POSIX}
+\item{time_num}{Time as numeric}
+\item{type}{Dive type (either "shallow" or "deep")}
 }
 }
 \description{
