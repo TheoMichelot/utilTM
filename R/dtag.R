@@ -23,7 +23,7 @@
 #' @importFrom tagtools find_dives
 #' @importFrom lubridate ymd_hms %within%
 #' @export
-prep_dtag <- function(file, start_time, out_freq, keep_interval = NULL) {
+prep_dtag <- function(file, start_time = NULL, out_freq, keep_interval = NULL) {
     # Read file
     dtag <- readMat(file)
     # Get tag ID from file name
@@ -40,9 +40,14 @@ prep_dtag <- function(file, start_time, out_freq, keep_interval = NULL) {
 
     # Sequence of times
     dt <- 1/as.numeric(dtag$fs)
-    start_time <- ymd_hms(start_time)
-    time <- seq(start_time, by = dt, length = n)
-    time_num <- as.numeric(time - time[1])
+    if(!is.null(start_time)) {
+        start_time <- ymd_hms(start_time)
+        time <- seq(start_time, by = dt, length = n)
+        time_num <- as.numeric(time - time[1])
+    } else {
+        time <- rep(NA, n)
+        time_num <- seq(0, by = dt, length = n)
+    }
 
     # Identify dives using tagtools
     dives <- find_dives(p = matrix(depth, ncol = 1), mindepth = 10, sampling_rate = 1/dt)
@@ -79,7 +84,7 @@ prep_dtag <- function(file, start_time, out_freq, keep_interval = NULL) {
     data <- subset(data, !is.na(ID))
 
     # Only keep times in keep_times interval
-    if(!is.null(keep_interval)) {
+    if(!is.null(start_time) & !is.null(keep_interval)) {
         keep_times <- interval(ymd_hms(keep_interval[1]), ymd_hms(keep_interval[2]))
         data <- subset(data, time %within% keep_times)
     }
@@ -108,15 +113,20 @@ prep_dtag <- function(file, start_time, out_freq, keep_interval = NULL) {
 #'
 #' @importFrom pbmcapply pbmclapply
 #' @export
-prep_dtags <- function(files, start_times, out_freq, keep_intervals = NULL,
+prep_dtags <- function(files, start_times = NULL, out_freq, keep_intervals = NULL,
                        n_cores = 1) {
+
+    data_list <- NULL
     # Call prep_dtag on each data file (in parallel if possible)
-    data_list <- pbmclapply(seq_along(files), function(i) {
-        prep_dtag(file = files[i],
-                  start_time = start_times[i],
-                  out_freq = out_freq,
-                  keep_interval = keep_intervals[[i]])
-    }, mc.cores = n_cores)
+    for(i in seq_along(files)){
+        # data_list <- pbmclapply(seq_along(files), function(i) {
+        data_list[[i]] <- prep_dtag(file = files[i],
+                                    start_time = start_times[i],
+                                    out_freq = out_freq,
+                                    keep_interval = keep_intervals[[i]])
+        # }, mc.cores = n_cores)
+    }
+
 
     return(do.call("rbind", data_list))
 }
