@@ -4,7 +4,7 @@
 \alias{prep_dtag}
 \title{Prepare DTag data}
 \usage{
-prep_dtag(file, start_time, out_freq, keep_interval = NULL)
+prep_dtag(file, start_time = NULL, out_freq, keep_interval = NULL)
 }
 \arguments{
 \item{file}{File name}

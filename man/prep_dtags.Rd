@@ -4,7 +4,13 @@
 \alias{prep_dtags}
 \title{Prepare data from several DTags}
 \usage{
-prep_dtags(files, start_times, out_freq, keep_intervals = NULL, n_cores = 1)
+prep_dtags(
+  files,
+  start_times = NULL,
+  out_freq,
+  keep_intervals = NULL,
+  n_cores = 1
+)
 }
 \arguments{
 \item{files}{Vector of file names}
