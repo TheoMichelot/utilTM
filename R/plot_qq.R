@@ -2,6 +2,9 @@
 #' Quantile-quantile plot
 #'
 #' @param x Sample to compare to the standard normal distribution
+#'
+#' @importFrom ggplot2 geom_abline stat_qq
+#' @export
 plot_qq <- function(x) {
     # qqnorm gives the coordinates of the points, used for axis limits
     qq_pts <- qqnorm(x, plot = FALSE)
