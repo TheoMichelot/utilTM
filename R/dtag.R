@@ -50,7 +50,8 @@ prep_dtag <- function(file, start_time = NULL, out_freq, keep_interval = NULL) {
     }
 
     # Identify dives using tagtools
-    dives <- find_dives(p = matrix(depth, ncol = 1), mindepth = 10, sampling_rate = 1/dt)
+    dives <- find_dives(p = matrix(depth, ncol = 1), mindepth = 100, surface = 2,
+                        sampling_rate = 1/dt, findall = 1)
     diveID <- rep(NA, length = length(pitch))
     dive_type <- rep(NA, length = length(pitch))
     for(d in 1:nrow(dives)) {
