@@ -119,14 +119,14 @@ prep_dtags <- function(files, start_times = NULL, out_freq, keep_intervals = NUL
 
     data_list <- NULL
     # Call prep_dtag on each data file (in parallel if possible)
-    for(i in seq_along(files)){
-        # data_list <- pbmclapply(seq_along(files), function(i) {
+    # for(i in seq_along(files)){
+    data_list <- pbmclapply(seq_along(files), function(i) {
         data_list[[i]] <- prep_dtag(file = files[i],
                                     start_time = start_times[i],
                                     out_freq = out_freq,
                                     keep_interval = keep_intervals[[i]])
-        # }, mc.cores = n_cores)
-    }
+    }, mc.cores = n_cores)
+    # }
 
 
     return(do.call("rbind", data_list))
