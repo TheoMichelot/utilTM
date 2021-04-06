@@ -37,7 +37,7 @@ plot_rast <- function(rast, contour = FALSE, guide = "colourbar") {
         coord_equal() +
         theme_light() +
         geom_raster(aes(fill = z)) +
-        scale_fill_scico(guide = guide, palette = "bamako", direction = -1)
+        scale_fill_scico(guide = guide, palette = "bilbao")
 
     if(contour) {
         p <- p + geom_contour(mapping = aes(z = z), colour = "black", size = 0.3)
