@@ -23,7 +23,8 @@
 #' @importFrom tagtools find_dives
 #' @importFrom lubridate ymd_hms %within%
 #' @export
-prep_dtag <- function(file, start_time = NULL, out_freq, keep_interval = NULL) {
+prep_dtag <- function(file, start_time = NULL, out_freq, downsample = "thin_regular",
+                      keep_interval = NULL) {
     # Read file
     dtag <- readMat(file)
     # Get tag ID from file name
@@ -77,12 +78,41 @@ prep_dtag <- function(file, start_time = NULL, out_freq, keep_interval = NULL) {
                            time_num = time_num,
                            type = dive_type)
 
-    # Thin to required frequency
-    thin <- as.numeric(dtag$fs/out_freq)
-    data <- data_all[seq(1, nrow(data_all), by = thin),]
-
     # Remove surface time and non-complete dives
-    data <- subset(data, !is.na(ID))
+    data_all <- subset(data_all, !is.na(ID))
+
+    # Thin to required frequency
+    thin <- round(as.numeric(dtag$fs/out_freq))
+    if(downsample == "thin_regular") {
+        # Keep observations on regular time grid
+        wh_keep <- seq(1, nrow(data_all), by = thin)
+        data <- data_all[wh_keep,]
+    } else if(downsample == "thin_random") {
+        # Keep observations on irregular time grid (at random)
+        wh_keep <- sort(sample(1:nrow(data_all), size = nrow(data_all)/thin))
+        data <- data_all[wh_keep,]
+    } else if(downsample == "running_mean") {
+        # Running mean of observations
+        data <- NULL
+        ids <- na.omit(unique(data_all$ID))
+        for(i in seq_along(ids)) {
+            cat("\nDive:", ids[i], "\n")
+            sub_data_all <- subset(data_all, ID == ids[i])
+            keep <- seq(1, by = thin, length = floor(nrow(sub_data_all)/thin))
+            sub_data <- sub_data_all[keep,]
+
+            for(var in c("pitch", "roll", "head")) {
+                sub_data[[var]] <- gtools::running(sub_data_all[[var]], width = thin,
+                                                   by = thin, fun = mean, trim = 0,
+                                                   na.rm = TRUE)
+            }
+
+            data <- rbind(data, sub_data)
+        }
+    } else {
+        stop(paste0("'downsample' must be one of: 'thin_regular',",
+                    "'thin_random', or 'running_mean'"))
+    }
 
     # Only keep times in keep_times interval
     if(!is.null(start_time) & !is.null(keep_interval)) {
@@ -114,19 +144,21 @@ prep_dtag <- function(file, start_time = NULL, out_freq, keep_interval = NULL) {
 #'
 #' @importFrom pbmcapply pbmclapply
 #' @export
-prep_dtags <- function(files, start_times = NULL, out_freq, keep_intervals = NULL,
-                       n_cores = 1) {
+prep_dtags <- function(files, start_times = NULL, out_freq, downsample = "thin_regular",
+                       keep_intervals = NULL, n_cores = 1) {
 
     data_list <- NULL
     # Call prep_dtag on each data file (in parallel if possible)
-    # for(i in seq_along(files)){
-    data_list <- pbmclapply(seq_along(files), function(i) {
+    for(i in seq_along(files)){
+        cat("\n\nFile:", files[i], "\n")
+        # data_list <- pbmclapply(seq_along(files), function(i) {
         data_list[[i]] <- prep_dtag(file = files[i],
                                     start_time = start_times[i],
                                     out_freq = out_freq,
+                                    downsample = downsample,
                                     keep_interval = keep_intervals[[i]])
-    }, mc.cores = n_cores)
-    # }
+        # }, mc.cores = n_cores)
+    }
 
 
     return(do.call("rbind", data_list))
