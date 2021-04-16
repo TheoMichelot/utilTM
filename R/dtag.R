@@ -248,3 +248,44 @@ add_expo <- function(data, expo) {
 
     return(out)
 }
+
+#' Add received level columns to DTag data frame
+#'
+#' @param data Data frame, at least with columns 'tagID' and 'time'
+#' @param RL Data frame of received level, with with columns 'tagID',
+#' 'time', and 'received_level'
+#'
+#' @return Input data frame with additional column for received level
+#'
+#' @export
+add_RL <- function(data, RL) {
+    # Create output data frame
+    out <- data
+    out$received_level <- 0
+
+    # Make sure the data formats are okay
+    RL$tagID <- as.character(RL$tagID)
+    RL$time <- ymd_hms(RL$time)
+    data$tagID <- as.character(data$tagID)
+    data$ID <- as.character(data$ID)
+    data$time <- ymd_hms(data$time)
+
+    # TODO: fix case where several exposures per tagID
+    # Loop over IDs
+    for(id in unique(RL$tagID)) {
+        subRL <- subset(RL, tagID == id)
+
+        # Loop over lines of data and add RL value with matching time
+        k <- 1
+        i0 <- which(data$tagID == id & data$time >= subRL$time[1])[1]
+        i1 <- which(data$tagID == id & data$time >= subRL$time[nrow(subRL)])[1]
+        for(i in i0:i1) {
+            out$received_level[i] <- subRL$received_level[k]
+            while(k < nrow(subRL) & subRL$time[k] < data$time[i + 1]) {
+                k <- k + 1
+            }
+        }
+    }
+
+    return(out)
+}
