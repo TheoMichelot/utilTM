@@ -8,6 +8,7 @@ prep_dtags(
   files,
   start_times = NULL,
   out_freq,
+  downsample = "thin_regular",
   keep_intervals = NULL,
   n_cores = 1
 )
