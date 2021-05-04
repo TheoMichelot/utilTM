@@ -1,4 +1,39 @@
 
+#' Simulate Brownian motion
+#'
+#' @param times Times of observation
+#' @param mu Drift
+#' @param sigma Diffusion
+#' @param z0 Initial value for simulation (defaults to 0)
+#'
+#' @return Data frame with columns z (simulated process) and time
+#'
+#' @export
+sim_BM <- function(times, mu = 0, sigma = 1, z0 = 0) {
+    # Number of observations
+    n <- length(times)
+    # Time intervals
+    dt <- diff(times)
+
+    # Check input
+    if(length(mu) == 1) {
+        mu <- rep(mu, n)
+    } else if(length(mu) != n) {
+        stop("'mu' should be of length 1 or", n)
+    }
+    if(length(sigma) == 1) {
+        sigma <- rep(sigma, n)
+    } else if(length(sigma) != n) {
+        stop("'sigma' should be of length 1 or", n)
+    }
+
+    # Generate increments and derive process
+    dz <- rnorm(n - 1, mean = mu[-n] * dt, sd = sigma[-n] * sqrt(dt))
+    z <- cumsum(c(z0, dz))
+
+    return(data.frame(time = times, z = z))
+}
+
 #' Simulate Ornstein-Uhlenbeck process
 #'
 #' @param times Times of observation
@@ -10,7 +45,7 @@
 #' @return Data frame with columns z (simulated process) and time
 #'
 #' @export
-sim_OU <- function(times, mu = 0, beta = 1, sigma = 1, z0 = NULL) {
+sim_OU <- function(times, mu = 0, beta = 1, sigma = 1, z0 = mu[1]) {
     # Number of observations
     n <- length(times)
     # Time intervals
@@ -31,9 +66,6 @@ sim_OU <- function(times, mu = 0, beta = 1, sigma = 1, z0 = NULL) {
         sigma <- rep(sigma, n)
     } else if(length(sigma) != n) {
         stop("'sigma' should be of length 1 or", n)
-    }
-    if(is.null(z0)) {
-        z0 <- mu[1]
     }
 
     # Initialise process
