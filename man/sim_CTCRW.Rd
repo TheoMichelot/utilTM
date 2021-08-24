@@ -4,12 +4,22 @@
 \alias{sim_CTCRW}
 \title{Simulate from CTCRW process}
 \usage{
-sim_CTCRW(times, mu = 0, beta = 1, sigma = 1, z0 = 0)
+sim_CTCRW(times, mu = 0, beta = 1, sigma = 1, tau = NULL, nu = NULL, z0 = 0)
 }
 \arguments{
 \item{times}{Vector of times of observations}
 
-\item{cov}{Vector of covariate values at times of observations}
+\item{mu}{Mean velocity parameter}
+
+\item{beta}{Reversion parameter of velocity}
+
+\item{sigma}{Variance parameter of velocity}
+
+\item{tau}{Time scale of autocorrelation parameter}
+
+\item{nu}{Mean speed parameter}
+
+\item{z0}{Initial value for simulation (default: 0)}
 }
 \value{
 Simulated track

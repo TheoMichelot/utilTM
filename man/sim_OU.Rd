@@ -4,7 +4,15 @@
 \alias{sim_OU}
 \title{Simulate Ornstein-Uhlenbeck process}
 \usage{
-sim_OU(times, mu = 0, beta = 1, sigma = 1, z0 = mu[1])
+sim_OU(
+  times,
+  mu = 0,
+  beta = 1,
+  sigma = 1,
+  tau = NULL,
+  kappa = NULL,
+  z0 = mu[1]
+)
 }
 \arguments{
 \item{times}{Times of observation}
@@ -14,6 +22,10 @@ sim_OU(times, mu = 0, beta = 1, sigma = 1, z0 = mu[1])
 \item{beta}{Reversion parameter}
 
 \item{sigma}{Diffusion parameter}
+
+\item{tau}{Time scale of autocorrelation parameter}
+
+\item{kappa}{Long-term variance parameter}
 
 \item{z0}{Initial value for simulation (defaults to mu)}
 }
