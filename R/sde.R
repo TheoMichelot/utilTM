@@ -40,18 +40,27 @@ sim_BM <- function(times, mu = 0, sigma = 1, z0 = 0) {
 #' @param mu Centre of attraction
 #' @param beta Reversion parameter
 #' @param sigma Diffusion parameter
+#' @param tau Time scale of autocorrelation parameter
+#' @param kappa Long-term variance parameter
 #' @param z0 Initial value for simulation (defaults to mu)
 #'
 #' @return Data frame with columns z (simulated process) and time
 #'
 #' @export
-sim_OU <- function(times, mu = 0, beta = 1, sigma = 1, z0 = mu[1]) {
+sim_OU <- function(times, mu = 0, beta = 1, sigma = 1,
+                   tau = NULL, kappa = NULL, z0 = mu[1]) {
     # Number of observations
     n <- length(times)
     # Time intervals
     dt <- diff(times)
 
     # Check input
+    if(!is.null(tau) & !is.null(kappa)) {
+        beta <- 1/tau
+        sigma <- sqrt(2 * kappa / tau)
+    } else if(!is.null(tau) | !is.null(kappa)) {
+        stop("You need to specify both 'tau' and 'kappa'")
+    }
     if(length(mu) == 1) {
         mu <- rep(mu, n)
     } else if(length(mu) != n) {
@@ -60,12 +69,12 @@ sim_OU <- function(times, mu = 0, beta = 1, sigma = 1, z0 = mu[1]) {
     if(length(beta) == 1) {
         beta <- rep(beta, n)
     } else if(length(beta) != n) {
-        stop("'beta' should be of length 1 or", n)
+        stop("'beta' (or 'tau') should be of length 1 or", n)
     }
     if(length(sigma) == 1) {
         sigma <- rep(sigma, n)
     } else if(length(sigma) != n) {
-        stop("'sigma' should be of length 1 or", n)
+        stop("'sigma' (or 'kappa') should be of length 1 or", n)
     }
 
     # Initialise process
@@ -99,18 +108,30 @@ make_cov <- function(beta, sigma, dt) {
 #' Simulate from CTCRW process
 #'
 #' @param times Vector of times of observations
-#' @param cov Vector of covariate values at times of observations
+#' @param mu Mean velocity parameter
+#' @param beta Reversion parameter of velocity
+#' @param sigma Variance parameter of velocity
+#' @param tau Time scale of autocorrelation parameter
+#' @param nu Mean speed parameter
+#' @param z0 Initial value for simulation (default: 0)
 #'
 #' @return Simulated track
 #'
 #' @export
-sim_CTCRW <- function(times, mu = 0, beta = 1, sigma = 1, z0 = 0) {
+sim_CTCRW <- function(times, mu = 0, beta = 1, sigma = 1,
+                      tau = NULL, nu = NULL, z0 = 0) {
     # Number of observations
     n <- length(times)
     # Time intervals
     dt <- diff(times)
 
     # Check input
+    if(!is.null(tau) & !is.null(nu)) {
+        beta <- 1/tau
+        sigma <- 2 * nu / sqrt(beta * pi)
+    } else if(!is.null(tau) | !is.null(nu)) {
+        stop("You need to specify both 'tau' and 'nu'")
+    }
     if(length(mu) == 1) {
         mu <- rep(mu, n)
     } else if(length(mu) != n) {
@@ -119,12 +140,12 @@ sim_CTCRW <- function(times, mu = 0, beta = 1, sigma = 1, z0 = 0) {
     if(length(beta) == 1) {
         beta <- rep(beta, n)
     } else if(length(beta) != n) {
-        stop("'beta' should be of length 1 or", n)
+        stop("'beta' (or 'tau') should be of length 1 or", n)
     }
     if(length(sigma) == 1) {
         sigma <- rep(sigma, n)
     } else if(length(sigma) != n) {
-        stop("'sigma' should be of length 1 or", n)
+        stop("'sigma' (or 'nu') should be of length 1 or", n)
     }
 
     data <- matrix(0, nrow = n, ncol = 2)
