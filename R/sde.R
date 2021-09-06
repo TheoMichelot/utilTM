@@ -128,7 +128,7 @@ sim_CTCRW <- function(times, mu = 0, beta = 1, sigma = 1,
     # Check input
     if(!is.null(tau) & !is.null(nu)) {
         beta <- 1/tau
-        sigma <- 2 * nu / sqrt(beta * pi)
+        sigma <- 2 * nu / sqrt(tau * pi)
     } else if(!is.null(tau) | !is.null(nu)) {
         stop("You need to specify both 'tau' and 'nu'")
     }
