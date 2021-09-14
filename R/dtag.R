@@ -20,7 +20,7 @@
 #' }
 #'
 #' @importFrom R.matlab readMat
-#' @importFrom tagtools find_dives
+#' @importFrom tagtools find_dives njerk
 #' @importFrom lubridate ymd_hms %within%
 #' @export
 prep_dtag <- function(file, start_time = NULL, out_freq, downsample = "thin_regular",
@@ -38,6 +38,7 @@ prep_dtag <- function(file, start_time = NULL, out_freq, downsample = "thin_regu
                    cos(dtag$head[-n] - dtag$head[-1]))
     head <- cumsum(c(0, dhead))
     depth <- dtag$p
+    njerk <- njerk(A = dtag$Aw, sampling_rate = as.numeric(dtag$fs))
 
     # Sequence of times
     dt <- 1/as.numeric(dtag$fs)
@@ -74,6 +75,7 @@ prep_dtag <- function(file, start_time = NULL, out_freq, downsample = "thin_regu
                            head = head,
                            dhead = c(dhead, NA),
                            depth = depth,
+                           njerk = njerk,
                            time = time,
                            time_num = time_num,
                            type = dive_type)
