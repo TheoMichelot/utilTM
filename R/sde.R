@@ -166,3 +166,50 @@ sim_CTCRW <- function(times, mu = 0, beta = 1, sigma = 1,
 
     return(data.frame(z = data[,"z"], v = data[,"v"], time = times))
 }
+
+#' Simulate Cox-Ingersoll-Ross model
+#'
+#' @param times Times of observation
+#' @param mu Mean (> 0)
+#' @param beta Reversion (> 0)
+#' @param sigma Diffusion (> 0)
+#' @param z0 Initial value for simulation (> 0)
+#'
+#' @return Data frame with columns z (simulated process) and time
+#'
+#' @export
+sim_CIR <- function(times, mu = 1, beta = 1, sigma = 1, z0 = 1) {
+    # Number of observations
+    n <- length(times)
+    # Time intervals
+    dt <- diff(times)
+
+    # Check input
+    if(length(mu) == 1) {
+        mu <- rep(mu, n)
+    } else if(length(mu) != n) {
+        stop("'mu' should be of length 1 or", n)
+    }
+    if(length(beta) == 1) {
+        beta <- rep(beta, n)
+    } else if(length(beta) != n) {
+        stop("'beta' should be of length 1 or", n)
+    }
+    if(length(sigma) == 1) {
+        sigma <- rep(sigma, n)
+    } else if(length(sigma) != n) {
+        stop("'sigma' should be of length 1 or", n)
+    }
+
+    # Generate increments and derive process
+    z <- rep(z0, n)
+    for(i in 2:n) {
+        c <- 2 * beta[i-1] / ((1 - exp(-beta[i-1] * dt[i-1])) * sigma[i-1]^2)
+        df <- 4 * beta[i-1] * mu[i-1] / sigma[i-1]^2
+        ncp <- 2 * c * z[i-1] * exp(- beta * dt[i-1])
+        Y <- rchisq(n = 1, df = df, ncp = ncp)
+        z[i] <- Y/(2 * c)
+    }
+
+    return(data.frame(time = times, z = z))
+}
