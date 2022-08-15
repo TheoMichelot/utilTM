@@ -3,12 +3,14 @@
 #'
 #' @param x Vector of values
 #' @param ID Vector of group IDs, of same length as x
+#' @param ... Optional parameters passed to difftime, if x is a vector
+#' of dates
 #'
 #' @return Vector of same length as x of first-order differences of x
 #' (and NAs for last value of each group ID)
 #'
 #' @export
-diff_by_ID <- function(x, ID) {
+diff_by_ID <- function(x, ID, ...) {
     if(length(x) != length(ID)) {
         stop("'x' and 'ID' must be vectors of the same length")
     }
@@ -21,7 +23,12 @@ diff_by_ID <- function(x, ID) {
 
     # First-order differences
     dx <- rep(NA, n)
-    dx[-i_last] <- x[-i_first] - x[-i_last]
+    if(!inherits(x, "POSIXct")) {
+        dx[-i_last] <- x[-i_first] - x[-i_last]
+    } else {
+        dx[-i_last] <- difftime(time1 = x[-i_first], time2 = x[-i_last], ...)
+    }
+
 
     return(dx)
 }
