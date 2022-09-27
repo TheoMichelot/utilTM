@@ -4,12 +4,15 @@
 \alias{diff_by_ID}
 \title{First-order difference for grouped data}
 \usage{
-diff_by_ID(x, ID)
+diff_by_ID(x, ID, ...)
 }
 \arguments{
 \item{x}{Vector of values}
 
 \item{ID}{Vector of group IDs, of same length as x}
+
+\item{...}{Optional parameters passed to difftime, if x is a vector
+of dates}
 }
 \value{
 Vector of same length as x of first-order differences of x

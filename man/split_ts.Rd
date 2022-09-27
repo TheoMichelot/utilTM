@@ -4,20 +4,24 @@
 \alias{split_ts}
 \title{Split time series data at gaps}
 \usage{
-split_ts(data, max_interval, min_ts_length = 0)
+split_ts(data, max_interval, min_ts_length = 0, units = "min", tz = NULL)
 }
 \arguments{
 \item{data}{Data frame with columns 'ID' and 'time', and any other
 data variables}
 
 \item{max_interval}{Longest permissible time interval within a
-time series, in seconds. The time series will be split where 
+time series, in minutes The time series will be split where
 there are gaps longer than \code{max_interval}.}
 
 \item{min_ts_length}{Minimum permissible length for a time series,
-in seconds. Time series shorter than this will be excluded from
+in minutes. Time series shorter than this will be excluded from
 the output data frame. Defaults to 0, i.e., all time series are
 kept.}
+
+\item{units}{Time unit (default: "min")}
+
+\item{tz}{Time zone}
 }
 \value{
 Data frame with same columns as input, plus a column 'ID_split'
