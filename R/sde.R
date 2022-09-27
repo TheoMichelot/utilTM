@@ -213,3 +213,40 @@ sim_CIR <- function(times, mu = 1, beta = 1, sigma = 1, z0 = 1) {
 
     return(data.frame(time = times, z = z))
 }
+
+#' Simulate from geometric Brownian motion
+#'
+#' @param times Times of observation
+#' @param mu Percentage drift (> 0)
+#' @param sigma Percentage volatility (> 0)
+#' @param z0 Initial value for simulation (> 0)
+#'
+#' @return Data frame with columns z (simulated process) and time
+#'
+#' @export
+sim_GBM <- function(times, mu = 1, sigma = 1, z0 = 1) {
+    n <- length(times)
+    z <- rep(NA, n)
+    z[1] <- z0
+    dt <- diff(times)
+
+    # Check input
+    if(length(mu) == 1) {
+        mu <- rep(mu, n)
+    } else if(length(mu) != n) {
+        stop("'mu' should be of length 1 or", n)
+    }
+    if(length(sigma) == 1) {
+        sigma <- rep(sigma, n)
+    } else if(length(sigma) != n) {
+        stop("'sigma' should be of length 1 or", n)
+    }
+
+    # Loop over time steps
+    for(i in 1:(n-1)) {
+        w <- rnorm(1, 0, sigma)
+        z[i+1] <- z[i] * exp((mu[i] - sigma[i]^2/2) * dt[i] + w)
+    }
+
+    return(data.frame(time = times, z = z))
+}
