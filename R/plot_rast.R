@@ -9,7 +9,16 @@
 #'
 #' @export
 rast2df <- function(rast) {
-    data.frame(coordinates(rast), z = values(rast))
+    if("RasterLayer" %in% class(rast)) {
+        df <- data.frame(coordinates(rast), z = values(rast))
+    } else if("SpatRaster" %in% class(rast)) {
+        df <- data.frame(crds(rast), z = values(rast))
+    } else {
+        stop("Raster object should be of class RasterLayer or SpatRaster")
+    }
+    colnames(df) <- c("x", "y", "z")
+
+    return(df)
 }
 
 #' Plot raster
