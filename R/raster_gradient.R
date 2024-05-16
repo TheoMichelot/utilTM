@@ -61,29 +61,38 @@ grad_terra <- function(rast, pts) {
     if(is.null(dim(pts))) {
         pts <- matrix(pts, nrow = 1)
     }
+    unique_x <- unique(crds(rast)[,1])
+    unique_y <- unique(crds(rast)[,2])
+
     # Loop over points
-    grads <- apply(pts, 1, function(pt) {
+    n <- nrow(pts)
+    grad <- apply(pts, MARGIN = 1, FUN = function(pt) {
         x <- pt[1]
         y <- pt[2]
 
         # Get coordinates of four adjacent points
-        x1 <- max(crds(rast)[which(crds(rast)[,1] < x), 1])
-        x2 <- min(crds(rast)[which(crds(rast)[,1] > x), 1])
-        y1 <- max(crds(rast)[which(crds(rast)[,2] < y), 2])
-        y2 <- min(crds(rast)[which(crds(rast)[,2] > y), 2])
+        x1 <- max(unique_x[unique_x <= x])
+        x2 <- min(unique_x[unique_x > x])
+        y1 <- max(unique_y[unique_y <= y])
+        y2 <- min(unique_y[unique_y > y])
+        corners <- matrix(c(x1, y1, x1, y2, x2, y1, x2, y2),
+                          nrow = 4, byrow = TRUE)
 
         # Evaluate raster at four adjacent points
-        f11 <- as.numeric(rast[cellFromXY(rast, matrix(c(x1, y1), nrow = 1))])
-        f12 <- as.numeric(rast[cellFromXY(rast, matrix(c(x1, y2), nrow = 1))])
-        f21 <- as.numeric(rast[cellFromXY(rast, matrix(c(x2, y1), nrow = 1))])
-        f22 <- as.numeric(rast[cellFromXY(rast, matrix(c(x2, y2), nrow = 1))])
+        f_val <- unlist(rast[cellFromXY(rast, corners)])
+        f11 <- f_val[1]
+        f12 <- f_val[2]
+        f21 <- f_val[3]
+        f22 <- f_val[4]
 
         # Gradient
         dfdx <- ((y2 - y) * (f21 - f11) + (y - y1) * (f22 - f12)) /
             ((y2 - y1) * (x2 - x1))
         dfdy <- ((x2 - x) * (f12 - f11) + (x - x1) * (f22 - f21)) /
             ((y2 - y1) * (x2 - x1))
+
         return(c(dfdx, dfdy))
     })
-    cbind(gradx = grads[1,], grady = grads[2,])
+
+    return(cbind(grad[1,], grad[2,]))
 }
