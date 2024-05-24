@@ -41,7 +41,24 @@ grad_raster <- function(rast, pts) {
     data.frame(gradx = grads[1,], grady = grads[2,])
 }
 
-
+#' Transform SpatRast to convenient format for grad_terra
+#'
+#' @param rast SpatRast object
+#'
+#' @return List with elements x (grid of x values), y (grid of y values),
+#' and z (matrix of raster values), as expected by grad_terra()
+#'
+#' @export
+rast_to_xyz <- function(rast) {
+    lim <- as.vector(ext(rast))
+    res <- res(rast)
+    xgrid <- seq(lim[1] + res[1]/2, lim[2] - res[1]/2, by = res[1])
+    ygrid <- seq(lim[3] + res[2]/2, lim[4] - res[2]/2, by = res[2])
+    # Matrix needs to be reversed vertically so that increasing
+    # row index corresponds to increasing y coordinate
+    zmat <- t(apply(as.matrix(rast, wide = TRUE), 2, rev))
+    return(x = xgrid, y = ygrid, z = zmat)
+}
 
 #' Gradient of terra raster using bilinear interpolation
 #'
@@ -51,48 +68,42 @@ grad_raster <- function(rast, pts) {
 #'
 #' @param rast SpatRast object
 #' @param pts Matrix with two columns (one for each coordinate)
+#' @param xgrid Grid of x values (if rast not provided)
+#' @param ygrid Grid of y values (if rast not provided)
+#' @param zmat Matrix of raster values (if rast not provided)
 #'
 #' @return Matrix with same dimensions as pts, where the first column
 #' gives the gradient along the first dimension, and the second column
 #' along the second dimension.
 #'
 #' @export
-grad_terra <- function(rast, pts) {
-    if(is.null(dim(pts))) {
-        pts <- matrix(pts, nrow = 1)
+grad_terra <- function(rast = NULL, pts, xgrid = NULL, ygrid = NULL, zmat = NULL) {
+    if(!is.null(rast)) {
+        xyz <- rast_to_xyz(rast = rast)
+        xgrid <- xyz$x
+        ygrid <- xyz$y
+        zmat <- xyz$z
     }
-    unique_x <- unique(crds(rast)[,1])
-    unique_y <- unique(crds(rast)[,2])
-
-    # Loop over points
-    n <- nrow(pts)
-    grad <- apply(pts, MARGIN = 1, FUN = function(pt) {
-        x <- pt[1]
-        y <- pt[2]
-
-        # Get coordinates of four adjacent points
-        x1 <- max(unique_x[unique_x <= x])
-        x2 <- min(unique_x[unique_x > x])
-        y1 <- max(unique_y[unique_y <= y])
-        y2 <- min(unique_y[unique_y > y])
-        corners <- matrix(c(x1, y1, x1, y2, x2, y1, x2, y2),
-                          nrow = 4, byrow = TRUE)
-
-        # Evaluate raster at four adjacent points
-        f_val <- unlist(rast[cellFromXY(rast, corners)])
-        f11 <- f_val[1]
-        f12 <- f_val[2]
-        f21 <- f_val[3]
-        f22 <- f_val[4]
-
-        # Gradient
-        dfdx <- ((y2 - y) * (f21 - f11) + (y - y1) * (f22 - f12)) /
-            ((y2 - y1) * (x2 - x1))
-        dfdy <- ((x2 - x) * (f12 - f11) + (x - x1) * (f22 - f21)) /
-            ((y2 - y1) * (x2 - x1))
-
-        return(c(dfdx, dfdy))
-    })
-
-    return(cbind(grad[1,], grad[2,]))
+    if(!is.matrix(pts)) {
+        # "pts" could be either a vector with two elements (i.e.,
+        # a single point) or a data frame
+        pts <- matrix(as.matrix(pts), ncol = 2)
+    }
+    x <- pts[,1]
+    y <- pts[,2]
+    x_ind <- findInterval(x = x, vec = xgrid)
+    y_ind <- findInterval(x = y, vec = ygrid)
+    x1 <- xgrid[x_ind]
+    x2 <- xgrid[x_ind + 1]
+    y1 <- ygrid[y_ind]
+    y2 <- ygrid[y_ind + 1]
+    f11 <- zmat[cbind(x_ind, y_ind)]
+    f12 <- zmat[cbind(x_ind, y_ind + 1)]
+    f21 <- zmat[cbind(x_ind + 1, y_ind)]
+    f22 <- zmat[cbind(x_ind + 1, y_ind + 1)]
+    dfdx <- ((y2 - y) * (f21 - f11) + (y - y1) * (f22 - f12)) /
+        ((y2 - y1) * (x2 - x1))
+    dfdy <- ((x2 - x) * (f12 - f11) + (x - x1) * (f22 - f21)) /
+        ((y2 - y1) * (x2 - x1))
+    return(cbind(dfdx, dfdy))
 }

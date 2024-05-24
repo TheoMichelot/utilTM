@@ -4,12 +4,18 @@
 \alias{grad_terra}
 \title{Gradient of terra raster using bilinear interpolation}
 \usage{
-grad_terra(rast, pts)
+grad_terra(rast = NULL, pts, xgrid = NULL, ygrid = NULL, zmat = NULL)
 }
 \arguments{
 \item{rast}{SpatRast object}
 
 \item{pts}{Matrix with two columns (one for each coordinate)}
+
+\item{xgrid}{Grid of x values (if rast not provided)}
+
+\item{ygrid}{Grid of y values (if rast not provided)}
+
+\item{zmat}{Matrix of raster values (if rast not provided)}
 }
 \value{
 Matrix with same dimensions as pts, where the first column
