@@ -57,7 +57,7 @@ rast_to_xyz <- function(rast) {
     # Matrix needs to be reversed vertically so that increasing
     # row index corresponds to increasing y coordinate
     zmat <- t(apply(as.matrix(rast, wide = TRUE), 2, rev))
-    return(x = xgrid, y = ygrid, z = zmat)
+    return(list(x = xgrid, y = ygrid, z = zmat))
 }
 
 #' Gradient of terra raster using bilinear interpolation
