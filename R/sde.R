@@ -151,6 +151,7 @@ sim_CTCRW <- function(times, mu = 0, beta = 1, sigma = 1,
     data <- matrix(0, nrow = n, ncol = 2)
     mean <- rep(NA, 2)
     colnames(data) <- c("v", "z")
+    data[1,2] <- z0
     for(i in 2:n) {
         # Mean of next state vector (V, Z)
         p <- exp(-beta[i-1] * dt[i-1])
